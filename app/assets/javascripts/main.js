@@ -3,8 +3,8 @@ $(function() {
                11: {2:"wire",6:"wire"},
                12: {3:"wire",4:"wire",5:"wire"}}
   var pixelsPerCell = 10;
-  var screenX = 0;
-  var screenY = 0;
+  var screenX = -30;
+  var screenY = -20;
   var canvas = $("#c")[0];
   var ctx = canvas.getContext("2d");
 
@@ -16,8 +16,6 @@ $(function() {
 
   var dragX;
   var dragY;
-
-  var playingEvent = undefined;
 
   var colors = {"head": "rgb(255,0,0)",
                 "tail": "rgb(0,0,255)",
@@ -259,7 +257,7 @@ $(function() {
     playingEvent = setInterval(evolve, stepTime);
   })
 
-  window.onload = window.onresize = function() {
+  window.onload = function() {
     var viewportWidth = window.innerWidth;
     var viewportHeight = window.innerHeight;
 
@@ -269,8 +267,12 @@ $(function() {
     canvas.setAttribute("height", canvasHeight);
     canvas.style.top = (viewportHeight - canvasHeight) / 2;
     canvas.style.left = (viewportWidth - canvasWidth) / 2;
-    drawWorld();
   };
 
-  drawWorld();
+  window.onresize = function () {
+    window.onload();
+    drawWorld();
+  }
+
+  var playingEvent = setInterval(evolve, stepTime);
 });
