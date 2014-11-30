@@ -1,13 +1,13 @@
 var app = angular.module('wireworld', []);
 
 app.controller("EditorController", function () {
-  this.world = {10: {3:"head", 4:"tail",5:"wire"},
-             11: {2:"wire",6:"wire"},
-             12: {3:"wire",4:"wire",5:"wire"}};
+  this.world = {36: {23:"head", 24:"tail",25:"wire"},
+             37: {22:"wire",26:"wire"},
+             38: {23:"wire",24:"wire",25:"wire"}};
 
-  this.pixelsPerCell = 10;
-  this.screenX = -30;
-  this.screenY = -20;
+  this.pixelsPerCell = 20;
+  this.screenX = 0;
+  this.screenY = 0;
   this.canvas = $("#c")[0];
   this.ctx = this.canvas.getContext("2d");
 
@@ -54,12 +54,13 @@ app.controller("EditorController", function () {
     }
 
     if (this.selecting) {
-      debugger;
       ctx.strokeStyle = "rgba(100, 100, 200, 0.2)";
       var pos = getMousePos();
       ctx.strokeRect(selectStartX, selectStartY, pos.x, pos.y);
     }
   }
+
+
 
   this.evolve = function () {
     var newWorld = {};
@@ -135,6 +136,15 @@ app.controller("EditorController", function () {
             y: Math.floor(pos["y"] / this.pixelsPerCell + screenY)};
   }
 
+  this.placeCell = function (x, y, type) {
+    if (!that.world[y]) {
+      that.world[y] = {};
+    }
+
+    if (!that.world[y][x])
+      that.world[y][x] = type;
+  }
+
   this.mousePressed = false;
 
   this.handleClick = function(e) {
@@ -145,13 +155,8 @@ app.controller("EditorController", function () {
       that.dragY = pos.y;
     } else if (that.mode == "draw") {
       var cell = that.getMouseCell(that.canvas, e);
-      if (!that.world[cell.y]) {
-        that.world[cell.y] = {};
-      }
-
-      if (!that.world[cell.y][cell.x])
-        that.world[cell.y][cell.x] = "wire";
-
+      that.placeCell(cell.x, cell.y, "wire");
+      that.lastDrawn = cell;
       that.drawWorld();
     } else if (that.mode == "select") {
       var pos = getMousePos(canvas, e);
@@ -166,10 +171,11 @@ app.controller("EditorController", function () {
     that.mousePressed = false;
     that.selecting = false;
     that.drawWorld();
+
+    that.lastDrawn = undefined;
   }
 
   this.handleDrag = function(e) {
-    debugger;
     var cell = that.getMouseCell(that.canvas, e);
 
     $("#coords").html(cell.x + "," + cell.y)
@@ -182,26 +188,7 @@ app.controller("EditorController", function () {
       that.drawWorld();
     } else if (that.mode=="draw" && that.mousePressed) {
       if (!that.world[cell.y] || !that.world[cell.y][cell.x]) {
-        var count = 0;
-        var x = cell.x;
-        var y = cell.y;
-        for (var dx = -1; dx <= 1; dx++) {
-          for (var dy = -1; dy <= 1; dy++) {
-            if (that.world[y+dy] && that.world[y+dy][x+dx] == "wire") {
-              count++;
-            }
-          };
-        };
-
-        if (count == 1 || count == 0) {
-          if (!that.world[cell["y"]]) {
-            that.world[cell["y"]] = {};
-          }
-          if (!that.world[cell["y"]][cell["x"]]) {
-            that.world[cell["y"]][cell["x"]] = "wire";
-            that.drawWorld();
-          }
-        }
+        that.placeCell(cell.x, cell.y, "wire");
       }
     } else if (that.mode=="select" && that.mousePressed) {
       console.log(that.selecting);

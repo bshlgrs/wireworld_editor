@@ -8,30 +8,6 @@
   </div>
 
   <!-- menu -->
-  <div style="position: absolute; bottom:0px;">
-    <div class="panel panel-default">
-      <div class="panel-body">
-        View tools
-        <div class="btn-group-lg" role="group" aria-label="...">
-          <a role="button" class="btn btn-default btn-lg"
-            id="step" ng-click="editor.evolve()">
-            <span class="glyphicon glyphicon-step-forward"></span></a>
-          <a role="button" class="btn btn-default btn-lg" id="play"
-            ng-click="editor.play()" ng-class='{active: editor.playing}'>
-          <span class="glyphicon glyphicon-play"></span></a>
-          <a role="button" class="btn btn-default btn-lg" id="pause"
-            ng-click="editor.pause()" ng-class='{active: !editor.playing}'><span class="glyphicon glyphicon-pause"></span></a>
-          <label>
-            <input type="range" value="50" id="speed-controller">
-            Speed
-          </label>
-          <a role="button" class="btn btn-default btn-lg" ng-click="editor.zoomIn()" id="zoom_in"><span class="glyphicon glyphicon-zoom-in"></span></a>
-          <a role="button" class="btn btn-default btn-lg" ng-click="editor.zoomOut()" id="zoom_out"><span class="glyphicon glyphicon-zoom-out"></span></a>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div style="position: absolute; right:0px; bottom:0px;">
     <div class="panel panel-default">
       <div class="panel-body">
@@ -88,6 +64,24 @@
               <li><a href="#">Import</a></li>
               <li><a href="#">Export</a></li>
             </ul>
+          </li>
+          <li>
+            <div class="btn-group navbar-btn" role="group" aria-label="...">
+              <a role="button" class="btn btn-default"
+                id="step" ng-click="editor.evolve()">
+                <span class="glyphicon glyphicon-step-forward"></span></a>
+              <a role="button" class="btn btn-default" id="play"
+                ng-click="editor.play()" ng-class='{active: editor.playing}'>
+              <span class="glyphicon glyphicon-play"></span></a>
+              <a role="button" class="btn btn-default" id="pause"
+                ng-click="editor.pause()" ng-class='{active: !editor.playing}'><span class="glyphicon glyphicon-pause"></span></a>
+              <label>
+                <input type="range" value="50" id="speed-controller">
+                Speed
+              </label>
+              <a role="button" class="btn btn-default" ng-click="editor.zoomIn()" id="zoom_in"><span class="glyphicon glyphicon-zoom-in"></span></a>
+              <a role="button" class="btn btn-default" ng-click="editor.zoomOut()" id="zoom_out"><span class="glyphicon glyphicon-zoom-out"></span></a>
+            </div>
           </li>
         </ul>
 
