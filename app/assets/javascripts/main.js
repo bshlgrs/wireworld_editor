@@ -1,61 +1,58 @@
-$(function() {
-  var app = angular.module('wireworld', ['ngRoute']);
+var app = angular.module('wireworld', []);
 
-  app.controller("EditorController", function () {
+app.controller("EditorController", function () {
+  this.world = {10: {3:"head", 4:"tail",5:"wire"},
+             11: {2:"wire",6:"wire"},
+             12: {3:"wire",4:"wire",5:"wire"}};
 
-  });
+  this.pixelsPerCell = 10;
+  this.screenX = -30;
+  this.screenY = -20;
+  this.canvas = $("#c")[0];
+  this.ctx = this.canvas.getContext("2d");
 
-  var pixelsPerCell = 10;
-  var screenX = -30;
-  var screenY = -20;
-  var canvas = $("#c")[0];
-  var ctx = canvas.getContext("2d");
+  this.selecting = false;
+  this.selectStartX = 0;
+  this.selectStartY = 0;
+  this.selectEndX = 0;
+  this.selectEndY = 0;
 
-  var selecting = false;
-  var selectStartX = 0;
-  var selectStartY = 0;
-  var selectEndX = 0;
-  var selectEndY = 0;
-
-  var dragX;
-  var dragY;
-
-  var colors = {"head": "rgb(255,0,0)",
+  this.colors = {"head": "rgb(255,0,0)",
                 "tail": "rgb(0,0,255)",
                 "wire": "rgb(200,200,100)"};
 
-  var mode = "view";
+  this.mode = "view";
+  this.stepTime = 100;
 
-  var stepTime = 100;
+  var that = this;
 
-
-  var drawCell = function(x, y, cellType) {
+  this.drawCell = function(x, y, cellType) {
     if (cellType) {
-      var startX = (x - screenX) * pixelsPerCell;
-      var startY = (y - screenY) * pixelsPerCell;
-      ctx.fillStyle = colors[cellType];
-      ctx.fillRect(startX, startY, pixelsPerCell, pixelsPerCell);
+      var startX = (x - screenX) * this.pixelsPerCell;
+      var startY = (y - screenY) * this.pixelsPerCell;
+      this.ctx.fillStyle = this.colors[cellType];
+      this.ctx.fillRect(startX, startY, this.pixelsPerCell, this.pixelsPerCell);
     }
   }
 
-  var drawWorld = function () {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (var y in world) {
-      if (world.hasOwnProperty(y)) {
-        for (var x in world[y]) {
-          if (world[y].hasOwnProperty(x)) {
-            drawCell(x, y, world[y][x]);
+  this.drawWorld = function () {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    for (var y in this.world) {
+      if (this.world.hasOwnProperty(y)) {
+        for (var x in this.world[y]) {
+          if (this.world[y].hasOwnProperty(x)) {
+            this.drawCell(x, y, this.world[y][x]);
           }
         }
       }
     }
 
-    if (!playingEvent) {
-      ctx.fillStyle = "rgba(100, 100, 200, 0.2)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (! this.playing) {
+      this.ctx.fillStyle = "rgba(100, 100, 200, 0.2)";
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    if (selecting) {
+    if (this.selecting) {
       debugger;
       ctx.strokeStyle = "rgba(100, 100, 200, 0.2)";
       var pos = getMousePos();
@@ -63,17 +60,17 @@ $(function() {
     }
   }
 
-  var evolve = function () {
+  this.evolve = function () {
     var newWorld = {};
 
-    for (var y in world) {
-      if (world.hasOwnProperty(y)) {
+    for (var y in this.world) {
+      if (this.world.hasOwnProperty(y)) {
         y = parseInt(y);
         newWorld[y] = {}
-        for (var x in world[y]) {
-          if (world[y].hasOwnProperty(x)) {
+        for (var x in this.world[y]) {
+          if (this.world[y].hasOwnProperty(x)) {
             x = parseInt(x);
-            var cell = world[y][x];
+            var cell = this.world[y][x];
 
             if (cell == "tail") {
               newWorld[y][x] = "wire";
@@ -83,7 +80,7 @@ $(function() {
               var count = 0;
               for (var dx = -1; dx <= 1; dx++) {
                 for (var dy = -1; dy <= 1; dy++) {
-                  if (world[y+dy] && world[y+dy][x+dx] == "head") {
+                  if (this.world[y+dy] && this.world[y+dy][x+dx] == "head") {
                     count++;
                   }
                 };
@@ -99,183 +96,171 @@ $(function() {
         }
       }
     }
-    world = newWorld;
-    drawWorld();
-  }
+    this.world = newWorld;
+    this.drawWorld();
+  };
 
-  var play = function () {
-    if (!playingEvent) {
-      playingEvent = setInterval(evolve, stepTime);
+  this.play = function () {
+    if (!this.playing) {
+      this.playing = true;
+      this.evolve();
+      setTimeout(this.step, this.stepTime);
     }
-  }
+  };
 
-  var pause = function () {
-    if (playingEvent) {
-      clearInterval(playingEvent);
-      playingEvent = undefined;
-      drawWorld();
+
+
+  this.step = function () {
+    if (that.playing) {
+      that.evolve();
+      setTimeout(that.step, that.stepTime);
     }
-  }
+  };
 
-  var getMousePos = function (canvas, evt) {
-    var rect = ctx.canvas.getBoundingClientRect();
+  this.pause = function () {
+    this.playing = false;
+    this.drawWorld();
+  };
+
+  this.getMousePos = function (canvas, evt) {
+    var rect = this.ctx.canvas.getBoundingClientRect();
     return {
       x: evt.clientX - rect.left,
       y: evt.clientY - rect.top
     };
   }
 
-  var getMouseCell = function (canvas, evt) {
-    var pos = getMousePos(canvas, evt);
-    return {x: Math.floor(pos["x"] / pixelsPerCell + screenX),
-            y: Math.floor(pos["y"] / pixelsPerCell + screenY)};
+  this.getMouseCell = function (canvas, evt) {
+    var pos = this.getMousePos(canvas, evt);
+    return {x: Math.floor(pos["x"] / this.pixelsPerCell + screenX),
+            y: Math.floor(pos["y"] / this.pixelsPerCell + screenY)};
   }
 
-  var mousePressed = false;
+  this.mousePressed = false;
 
-  var handleClick = function(e) {
-    mousePressed = true;
-    if (mode=="view") {
-      var pos = getMousePos(canvas, e);
-      dragX = pos.x;
-      dragY = pos.y;
-    } else if (mode == "draw") {
-      var cell = getMouseCell(canvas, e);
-      if (!world[cell.y]) {
-        world[cell.y] = {};
+  this.handleClick = function(e) {
+    that.mousePressed = true;
+    if (that.mode=="view") {
+      var pos = that.getMousePos(that.canvas, e);
+      that.dragX = pos.x;
+      that.dragY = pos.y;
+    } else if (that.mode == "draw") {
+      var cell = that.getMouseCell(that.canvas, e);
+      if (!that.world[cell.y]) {
+        that.world[cell.y] = {};
       }
-      if (!world[cell.y][cell.x])
-        world[cell.y][cell.x] = "wire";
-      else if (world[cell.y][cell.x] == "wire")
-        world[cell.y][cell.x] = "head";
-      else if (world[cell.y][cell.x] == "head")
-        world[cell.y][cell.x] = "tail";
-      else if (world[cell.y][cell.x] == "tail")
-        world[cell.y][cell.x] = undefined;
+      if (!that.world[cell.y][cell.x])
+        that.world[cell.y][cell.x] = "wire";
+      else if (that.world[cell.y][cell.x] == "wire")
+        that.world[cell.y][cell.x] = "head";
+      else if (that.world[cell.y][cell.x] == "head")
+        that.world[cell.y][cell.x] = "tail";
+      else if (that.world[cell.y][cell.x] == "tail")
+        that.world[cell.y][cell.x] = undefined;
 
-      drawWorld();
-    } else if (mode == "select") {
+      that.drawWorld();
+    } else if (that.mode == "select") {
       var pos = getMousePos(canvas, e);
-      selecting = true;
+      that.selecting = true;
       selectStartX = pos.x;
       selectStartY = pos.y;
     }
     e.preventDefault();
   };
 
-  var handleUnclick = function(e) {
-    mousePressed = false;
-    selecting = false;
-    drawWorld();
+  this.handleUnclick = function(e) {
+    that.mousePressed = false;
+    that.selecting = false;
+    that.drawWorld();
   }
 
-  var handleDrag = function(e) {
-    console.log("what");
-    var cell = getMouseCell(canvas, e);
+  this.handleDrag = function(e) {
+    var cell = that.getMouseCell(that.canvas, e);
 
     $("#coords").html(cell.x + "," + cell.y)
-    if (mode=="view" && mousePressed) {
-      var pos = getMousePos(canvas, e);
-      screenX += (dragX - pos.x)/pixelsPerCell;
-      screenY += (dragY - pos.y)/pixelsPerCell;
-      dragX = pos.x;
-      dragY = pos.y;
-      drawWorld();
-    } else if (mode=="draw" && mousePressed) {
-      if (!world[cell.y] || !world[cell.y][cell.x]) {
+    if (that.mode=="view" && that.mousePressed) {
+      var pos = that.getMousePos(that.canvas, e);
+      screenX += (that.dragX - pos.x)/that.pixelsPerCell;
+      screenY += (that.dragY - pos.y)/that.pixelsPerCell;
+      that.dragX = pos.x;
+      that.dragY = pos.y;
+      that.drawWorld();
+    } else if (that.mode=="draw" && that.mousePressed) {
+      if (!that.world[cell.y] || !that.world[cell.y][cell.x]) {
         var count = 0;
         var x = cell.x;
         var y = cell.y;
         for (var dx = -1; dx <= 1; dx++) {
           for (var dy = -1; dy <= 1; dy++) {
-            if (world[y+dy] && world[y+dy][x+dx] == "wire") {
+            if (that.world[y+dy] && that.world[y+dy][x+dx] == "wire") {
               count++;
             }
           };
         };
 
         if (count == 1 || count == 0) {
-          if (!world[cell["y"]]) {
-            world[cell["y"]] = {};
+          if (!that.world[cell["y"]]) {
+            that.world[cell["y"]] = {};
           }
-          if (!world[cell["y"]][cell["x"]]) {
-            world[cell["y"]][cell["x"]] = "wire";
-            drawWorld();
+          if (!that.world[cell["y"]][cell["x"]]) {
+            that.world[cell["y"]][cell["x"]] = "wire";
+            that.drawWorld();
           }
         }
       }
-    } else if (mode=="select" && mousePressed) {
-      console.log(selecting);
+    } else if (that.mode=="select" && that.mousePressed) {
+      console.log(that.selecting);
       drawWorld();
     }
   }
 
-  $("#step").on("click", evolve);
-  $("#play").on("click", play);
-  $("#pause").on("click", pause);
-  $("#c").on("mousedown", handleClick);
-  $("#c").on("mouseup", handleUnclick);
-  $("#c").mousemove(handleDrag);
+  this.drawWorld();
+  this.step();
 
-  var changeMode = function(newMode) {
-    $("#"+mode).toggleClass("active");
-    mode = newMode;
-    $("#"+mode).toggleClass("active");
-  }
+  $("#c").on("mousedown", this.handleClick);
+  $("#c").on("mouseup", this.handleUnclick);
+  $("#c").mousemove(this.handleDrag);
 
-  $("#view").on("click", function () {
-    changeMode("view")
-  });
+  this.zoomIn = function() {
+    that.pixelsPerCell *= 1.5;
+    that.drawWorld();
+  };
 
-  $("#draw").on("click", function() {
-    changeMode("draw");
-  });
+  this.zoomOut = function() {
+    that.pixelsPerCell /= 1.5;
+    that.drawWorld();
+  };
 
-  $("#select").on("click", function() {
-    changeMode("select");
-  });
 
-  $("#zoom_in").on("click", function() {
-    pixelsPerCell *= 1.5;
-    drawWorld();
-  })
-
-  $("#zoom_out").on("click", function() {
-    pixelsPerCell /= 1.5;
-    drawWorld();
-  })
-
-  $("#clear").on("click", function() {
-    world = {};
-    drawWorld();
-  })
+  this.clear = function () {
+    this.world = {};
+    this.drawWorld();
+  };
 
   $("#speed-controller").on("input", function () {
     var newSpeed = parseInt($("#speed-controller").val());
-    stepTime = 150 - newSpeed*1.4;
-
-    if (playingEvent)
-      clearInterval(playingEvent);
-
-    playingEvent = setInterval(evolve, stepTime);
+    that.stepTime = 150 - newSpeed*1.4;
   })
 
   window.onload = function() {
+
     var viewportWidth = window.innerWidth;
     var viewportHeight = window.innerHeight;
 
     var canvasWidth = viewportWidth;
     var canvasHeight = viewportHeight;
-    canvas.setAttribute("width", canvasWidth);
-    canvas.setAttribute("height", canvasHeight);
-    canvas.style.top = (viewportHeight - canvasHeight) / 2;
-    canvas.style.left = (viewportWidth - canvasWidth) / 2;
+    that.canvas.setAttribute("width", canvasWidth);
+    that.canvas.setAttribute("height", canvasHeight);
+    that.canvas.style.top = (viewportHeight - canvasHeight) / 2;
+    that.canvas.style.left = (viewportWidth - canvasWidth) / 2;
+    that.canvas.visibility = 'normal';
   };
 
   window.onresize = function () {
     window.onload();
-    drawWorld();
-  }
+    that.drawWorld();
+  };
 
-  var playingEvent = setInterval(evolve, stepTime);
+
+  this.play();
 });
