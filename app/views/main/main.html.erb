@@ -1,43 +1,7 @@
-<!-- canvas -->
-<div id="canvas-wrapper">
-  <div id="coords" style="left: 30px; top: 10px; position: absolute;"></div>
-  <canvas id="c" style="background-color: black; margin" width="550" height="400"></canvas>
-</div>
+<script type="text/javascript">
+  var world = {10: {3:"head", 4:"tail",5:"wire"},
+             11: {2:"wire",6:"wire"},
+             12: {3:"wire",4:"wire",5:"wire"}}
+</script>
 
-<!-- menu -->
-<div style="position: absolute; right:0px;">
-  <div class="panel panel-default">
-    <div class="panel-body">
-      View tools
-      <div class="btn-group-lg" role="group" aria-label="...">
-        <a role="button" class="btn btn-default btn-lg" id="step"><span class="glyphicon glyphicon-step-forward"></span></a>
-        <a role="button" class="btn btn-default btn-lg" id="play"><span class="glyphicon glyphicon-play"></span></a>
-        <a role="button" class="btn btn-default btn-lg" id="pause"><span class="glyphicon glyphicon-pause"></span></a>
-        <label>
-          <input type="range" value="50" id="speed-controller">
-          Speed
-        </label>
-        <a role="button" class="btn btn-default btn-lg" id="zoom_in"><span class="glyphicon glyphicon-zoom-in"></span></a>
-        <a role="button" class="btn btn-default btn-lg" id="zoom_out"><span class="glyphicon glyphicon-zoom-out"></span></a>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel panel-default">
-    <div class="panel-body">
-      Editing tools
-      <div class="btn-group-lg" role="group" aria-label="...">
-        <a role="button" class="btn btn-default btn-lg" id="clear"><span class="glyphicon glyphicon-trash"></span></a>
-        <a role="button" class="btn btn-default btn-lg" id="view"><span class="glyphicon glyphicon-move"></span></a>
-        <a role="button" class="btn btn-default btn-lg" id="draw"><span class="glyphicon glyphicon-pencil"></span></a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- title -->
-<div style="position: absolute;" class="panel panel-default">
-  <div class="panel-body">
-    <h1>Wireworld editor</h1>
-  </div>
-</div>
+<%= render "editor" %>

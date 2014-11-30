@@ -1,7 +1,10 @@
 $(function() {
-  var world = {10: {3:"head", 4:"tail",5:"wire"},
-               11: {2:"wire",6:"wire"},
-               12: {3:"wire",4:"wire",5:"wire"}}
+  var app = angular.module('wireworld', ['ngRoute']);
+
+  app.controller("EditorController", function () {
+
+  });
+
   var pixelsPerCell = 10;
   var screenX = -30;
   var screenY = -20;
