@@ -1,7 +1,4 @@
-
-
 <div ng-app="wireworld" ng-controller="EditorController as editor">
-
 
   <!-- canvas -->
   <div id="canvas-wrapper">
@@ -20,10 +17,10 @@
             id="step" ng-click="editor.evolve()">
             <span class="glyphicon glyphicon-step-forward"></span></a>
           <a role="button" class="btn btn-default btn-lg" id="play"
-            ng-click="editor.play()">
+            ng-click="editor.play()" ng-class='{active: editor.playing}'>
           <span class="glyphicon glyphicon-play"></span></a>
           <a role="button" class="btn btn-default btn-lg" id="pause"
-            ng-click="editor.pause()"><span class="glyphicon glyphicon-pause"></span></a>
+            ng-click="editor.pause()" ng-class='{active: !editor.playing}'><span class="glyphicon glyphicon-pause"></span></a>
           <label>
             <input type="range" value="50" id="speed-controller">
             Speed
@@ -45,13 +42,13 @@
             class="btn btn-default btn-lg"
             id="view"
             ng-click="editor.mode = 'view';"
-            ng-class="{active: editor.mode=='view'}"
+            ng-class='{active: editor.mode=="view"}'
             ><span class="glyphicon glyphicon-move"></span></a>
 
           <a role="button" class="btn btn-default btn-lg"
             id="draw"
             ng-click="editor.mode = 'draw';"
-            ng-class="{active: editor.mode=='view'}"
+            ng-class='{active: editor.mode=="draw"}'
           ><span class="glyphicon glyphicon-pencil"></span></a>
         </div>
       </div>

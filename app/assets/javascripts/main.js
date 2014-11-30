@@ -25,6 +25,7 @@ app.controller("EditorController", function () {
   this.stepTime = 100;
 
   var that = this;
+  this.playing = false;
 
   this.drawCell = function(x, y, cellType) {
     if (cellType) {
@@ -108,8 +109,6 @@ app.controller("EditorController", function () {
     }
   };
 
-
-
   this.step = function () {
     if (that.playing) {
       that.evolve();
@@ -149,14 +148,9 @@ app.controller("EditorController", function () {
       if (!that.world[cell.y]) {
         that.world[cell.y] = {};
       }
+
       if (!that.world[cell.y][cell.x])
         that.world[cell.y][cell.x] = "wire";
-      else if (that.world[cell.y][cell.x] == "wire")
-        that.world[cell.y][cell.x] = "head";
-      else if (that.world[cell.y][cell.x] == "head")
-        that.world[cell.y][cell.x] = "tail";
-      else if (that.world[cell.y][cell.x] == "tail")
-        that.world[cell.y][cell.x] = undefined;
 
       that.drawWorld();
     } else if (that.mode == "select") {
@@ -175,6 +169,7 @@ app.controller("EditorController", function () {
   }
 
   this.handleDrag = function(e) {
+    debugger;
     var cell = that.getMouseCell(that.canvas, e);
 
     $("#coords").html(cell.x + "," + cell.y)
