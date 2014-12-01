@@ -1,9 +1,9 @@
 var app = angular.module('wireworld', []);
 
 app.controller("EditorController", function () {
-  this.world = {36: {23:"head", 24:"tail",25:"wire"},
-             37: {22:"wire",26:"wire"},
-             38: {23:"wire",24:"wire",25:"wire"}};
+  this.world = {26: {23:"head", 24:"tail",25:"wire"},
+             27: {22:"wire",26:"wire"},
+             28: {23:"wire",24:"wire",25:"wire"}};
 
   this.pixelsPerCell = 20;
   this.screenX = 0;
@@ -58,9 +58,7 @@ app.controller("EditorController", function () {
       var pos = getMousePos();
       ctx.strokeRect(selectStartX, selectStartY, pos.x, pos.y);
     }
-  }
-
-
+  };
 
   this.evolve = function () {
     var newWorld = {};
@@ -145,6 +143,10 @@ app.controller("EditorController", function () {
       that.world[y][x] = type;
   }
 
+  this.getCell = function (x, y) {
+    return that.world[y] && that.world[y][x];
+  };
+
   this.mousePressed = false;
 
   this.handleClick = function(e) {
@@ -158,6 +160,13 @@ app.controller("EditorController", function () {
       that.placeCell(cell.x, cell.y, "wire");
       that.lastDrawn = cell;
       that.drawWorld();
+    } else if (that.mode == "ignite") {
+      var cell = that.getMouseCell(that.canvas, e);
+      if (that.getCell(cell.x, cell.y) == "wire") {
+        that.placeCell(cell.x, cell.y, "head");
+        that.lastDrawn = cell;
+        that.drawWorld();
+      }
     } else if (that.mode == "select") {
       var pos = getMousePos(canvas, e);
       that.selecting = true;
@@ -179,18 +188,23 @@ app.controller("EditorController", function () {
     var cell = that.getMouseCell(that.canvas, e);
 
     $("#coords").html(cell.x + "," + cell.y)
-    if (that.mode=="view" && that.mousePressed) {
+    if (that.mode == "view" && that.mousePressed) {
       var pos = that.getMousePos(that.canvas, e);
       screenX += (that.dragX - pos.x)/that.pixelsPerCell;
       screenY += (that.dragY - pos.y)/that.pixelsPerCell;
       that.dragX = pos.x;
       that.dragY = pos.y;
       that.drawWorld();
-    } else if (that.mode=="draw" && that.mousePressed) {
+    } else if (that.mode == "draw" && that.mousePressed) {
       if (!that.world[cell.y] || !that.world[cell.y][cell.x]) {
         that.placeCell(cell.x, cell.y, "wire");
       }
-    } else if (that.mode=="select" && that.mousePressed) {
+    } else if (that.mode == "ignite" && that.mousePressed) {
+      if (that.lastDrawn && cell.x != that.lastDrawn.x || cell.y != that.lastDrawn.y) {
+        that.placeCell(cell.x, cell.y, "tail");
+        that.lastDrawn = undefined;
+      }
+    } else if (that.mode == "select" && that.mousePressed) {
       console.log(that.selecting);
       drawWorld();
     }
@@ -213,7 +227,6 @@ app.controller("EditorController", function () {
     that.drawWorld();
   };
 
-
   this.clear = function () {
     this.world = {};
     this.drawWorld();
@@ -225,7 +238,6 @@ app.controller("EditorController", function () {
   })
 
   window.onload = function() {
-
     var viewportWidth = window.innerWidth;
     var viewportHeight = window.innerHeight;
 
@@ -242,7 +254,6 @@ app.controller("EditorController", function () {
     window.onload();
     that.drawWorld();
   };
-
 
   this.play();
 });
