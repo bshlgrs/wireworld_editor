@@ -139,8 +139,7 @@ app.controller("EditorController", function () {
       that.world[y] = {};
     }
 
-    if (!that.world[y][x])
-      that.world[y][x] = type;
+    that.world[y][x] = type;
   }
 
   this.getCell = function (x, y) {
@@ -196,13 +195,21 @@ app.controller("EditorController", function () {
       that.dragY = pos.y;
       that.drawWorld();
     } else if (that.mode == "draw" && that.mousePressed) {
-      if (!that.world[cell.y] || !that.world[cell.y][cell.x]) {
-        that.placeCell(cell.x, cell.y, "wire");
+      if (that.lastDrawn) {
+        Helper.drawLine(that.lastDrawn.x, that.lastDrawn.y, cell.x, cell.y,
+          function (x, y) {
+          that.placeCell(x, y, "wire");
+        });
+        that.lastDrawn = cell;
+      } else {
+        debugger;
+        console.log("I don't think this should happen")
       }
     } else if (that.mode == "ignite" && that.mousePressed) {
-      if (that.lastDrawn && cell.x != that.lastDrawn.x || cell.y != that.lastDrawn.y) {
+      if (that.lastDrawn && (cell.x != that.lastDrawn.x || cell.y != that.lastDrawn.y)) {
         that.placeCell(cell.x, cell.y, "tail");
         that.lastDrawn = undefined;
+        that.drawWorld();
       }
     } else if (that.mode == "select" && that.mousePressed) {
       console.log(that.selecting);

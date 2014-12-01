@@ -1,7 +1,7 @@
 $(function () {
   var Helper = window.Helper = {};
 
-  Helper.drawLines = function(x0, y0, x1, y1, callback) {
+  Helper.drawLine = function(x0, y0, x1, y1, callback) {
     var dx = x1 - x0;
     var dy = y1 - y0;
     if (y0 > y1){
@@ -9,14 +9,14 @@ $(function () {
         var yf = y1-1;
     }else{
         var py = 1;
-        var yf = y1+1;        
+        var yf = y1+1;
     }
     if (x0 > x1){
         var px = -1;
         var xf = x1-1;
     }else{
         var px = 1;
-        var xf = x1+1; 
+        var xf = x1+1;
     }
     if (Math.abs(dx) >= Math.abs(dy)){
         var D = (2*dy - dx)*py;
@@ -48,7 +48,7 @@ $(function () {
                 D = D + px*(2*dx);
             }
         }
-    }     
+    }
 };
 
 })
