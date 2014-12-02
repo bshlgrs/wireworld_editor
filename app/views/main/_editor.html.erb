@@ -76,6 +76,8 @@
               <li class="divider"></li>
               <li><a href="#">Import</a></li>
               <li><a href="#">Export</a></li>
+              <li class="divider"></li>
+              <li><a href="#" data-toggle="modal" data-target="#statsModal">Statistics</a></li>
             </ul>
           </li>
 
@@ -116,7 +118,6 @@
       </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
   </nav>
-</div>
 
 <div class="modal fade" id="aboutModal">
   <div class="modal-dialog">
@@ -136,3 +137,22 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+<div class="modal fade" id="statsModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">Stats</h4>
+      </div>
+      <div class="modal-body">
+        <p>Stats: {{editor.stats()}}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+</div>

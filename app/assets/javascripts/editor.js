@@ -5,6 +5,8 @@ app.controller("EditorController", function () {
              27: {22:"wire",26:"wire"},
              28: {23:"wire",24:"wire",25:"wire"}};
 
+  window.cont = this;
+
   this.pixelsPerCell = 20;
   this.screenX = 0;
   this.screenY = 0;
@@ -29,8 +31,8 @@ app.controller("EditorController", function () {
 
   this.drawCell = function(x, y, cellType) {
     if (cellType) {
-      var startX = (x - screenX) * this.pixelsPerCell;
-      var startY = (y - screenY) * this.pixelsPerCell;
+      var startX = (x - this.screenX) * this.pixelsPerCell;
+      var startY = (y - this.screenY) * this.pixelsPerCell;
       this.ctx.fillStyle = this.colors[cellType];
       this.ctx.fillRect(startX, startY, this.pixelsPerCell, this.pixelsPerCell);
     }
@@ -130,8 +132,8 @@ app.controller("EditorController", function () {
 
   this.getMouseCell = function (canvas, evt) {
     var pos = this.getMousePos(canvas, evt);
-    return {x: Math.floor(pos["x"] / this.pixelsPerCell + screenX),
-            y: Math.floor(pos["y"] / this.pixelsPerCell + screenY)};
+    return {x: Math.floor(pos["x"] / this.pixelsPerCell + that.screenX),
+            y: Math.floor(pos["y"] / this.pixelsPerCell + that.screenY)};
   }
 
   this.placeCell = function (x, y, type) {
@@ -189,8 +191,8 @@ app.controller("EditorController", function () {
     $("#coords").html(cell.x + "," + cell.y)
     if (that.mode == "view" && that.mousePressed) {
       var pos = that.getMousePos(that.canvas, e);
-      screenX += (that.dragX - pos.x)/that.pixelsPerCell;
-      screenY += (that.dragY - pos.y)/that.pixelsPerCell;
+      that.screenX += (that.dragX - pos.x)/that.pixelsPerCell;
+      that.screenY += (that.dragY - pos.y)/that.pixelsPerCell;
       that.dragX = pos.x;
       that.dragY = pos.y;
       that.drawWorld();
@@ -201,15 +203,18 @@ app.controller("EditorController", function () {
           that.placeCell(x, y, "wire");
         });
         that.lastDrawn = cell;
+        that.drawWorld();
       } else {
         debugger;
         console.log("I don't think this should happen")
       }
     } else if (that.mode == "ignite" && that.mousePressed) {
       if (that.lastDrawn && (cell.x != that.lastDrawn.x || cell.y != that.lastDrawn.y)) {
-        that.placeCell(cell.x, cell.y, "tail");
-        that.lastDrawn = undefined;
-        that.drawWorld();
+        if (that.getCell(cell.x, cell.y) == "wire") {
+          that.placeCell(cell.x, cell.y, "tail");
+          that.lastDrawn = undefined;
+          that.drawWorld();
+        }
       }
     } else if (that.mode == "select" && that.mousePressed) {
       console.log(that.selecting);
@@ -224,13 +229,22 @@ app.controller("EditorController", function () {
   $("#c").on("mouseup", this.handleUnclick);
   $("#c").mousemove(this.handleDrag);
 
+  this.scalingFactor = 1.5;
+
+  // What's 2.5 in the following functions? A magic number. I should probably
+  // fix that at some point.
+
   this.zoomIn = function() {
-    that.pixelsPerCell *= 1.5;
+    that.pixelsPerCell *= this.scalingFactor;
+    that.screenX += that.canvas.width / (2.5*that.pixelsPerCell*this.scalingFactor);
+    that.screenY += that.canvas.height / (2.5*that.pixelsPerCell*this.scalingFactor)
     that.drawWorld();
   };
 
   this.zoomOut = function() {
-    that.pixelsPerCell /= 1.5;
+    that.screenX -= that.canvas.width / (2.5*that.pixelsPerCell*this.scalingFactor);
+    that.screenY -= that.canvas.height / (2.5*that.pixelsPerCell*this.scalingFactor)
+    that.pixelsPerCell /= this.scalingFactor;
     that.drawWorld();
   };
 
@@ -263,4 +277,18 @@ app.controller("EditorController", function () {
   };
 
   this.play();
+
+  this.stats = function () {
+    var result = {"head":0, "tail": 0, "wire": 0};
+
+    for (row in this.world) {
+      if (this.world.hasOwnProperty(row)) {
+        for (cell in this.world[row]) {
+          result[this.world[row][cell]] += 1;
+        }
+      }
+    }
+
+    return result;
+  };
 });
