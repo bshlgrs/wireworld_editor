@@ -1,6 +1,6 @@
 class Api::WorldsController < ApplicationController
   def create
-    @world = World.new(params[:world])
+    @world = World.new(:contents => params[:world][:contents].to_json)
     @world.save!
     render :json => @world
   end
@@ -18,4 +18,5 @@ class Api::WorldsController < ApplicationController
 
   def delete
   end
+
 end

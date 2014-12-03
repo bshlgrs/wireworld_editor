@@ -1,15 +1,17 @@
 var app = angular.module('wireworld', []);
 
-app.controller("EditorController", function () {
-  this.world = {26: {23:"head", 24:"tail",25:"wire"},
-             27: {22:"wire",26:"wire"},
-             28: {23:"wire",24:"wire",25:"wire"}};
+app.controller("EditorController", function ($scope, $http) {
 
+  this.world = {};
+  this.world.grid = window.grid;
+
+  // This is for debugging purposes.
   window.cont = this;
 
-  this.pixelsPerCell = 20;
-  this.screenX = 0;
-  this.screenY = 0;
+  this.world.pixelsPerCell = 20;
+  this.world.screenX = 0;
+  this.world.screenY = 0;
+
   this.canvas = $("#c")[0];
   this.ctx = this.canvas.getContext("2d");
 
@@ -31,20 +33,20 @@ app.controller("EditorController", function () {
 
   this.drawCell = function(x, y, cellType) {
     if (cellType) {
-      var startX = (x - this.screenX) * this.pixelsPerCell;
-      var startY = (y - this.screenY) * this.pixelsPerCell;
+      var startX = (x - this.world.screenX) * this.world.pixelsPerCell;
+      var startY = (y - this.world.screenY) * this.world.pixelsPerCell;
       this.ctx.fillStyle = this.colors[cellType];
-      this.ctx.fillRect(startX, startY, this.pixelsPerCell, this.pixelsPerCell);
+      this.ctx.fillRect(startX, startY, this.world.pixelsPerCell, this.world.pixelsPerCell);
     }
   }
 
   this.drawWorld = function () {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    for (var y in this.world) {
-      if (this.world.hasOwnProperty(y)) {
-        for (var x in this.world[y]) {
-          if (this.world[y].hasOwnProperty(x)) {
-            this.drawCell(x, y, this.world[y][x]);
+    for (var y in this.world.grid) {
+      if (this.world.grid.hasOwnProperty(y)) {
+        for (var x in this.world.grid[y]) {
+          if (this.world.grid[y].hasOwnProperty(x)) {
+            this.drawCell(x, y, this.world.grid[y][x]);
           }
         }
       }
@@ -65,14 +67,14 @@ app.controller("EditorController", function () {
   this.evolve = function () {
     var newWorld = {};
 
-    for (var y in this.world) {
-      if (this.world.hasOwnProperty(y)) {
+    for (var y in this.world.grid) {
+      if (this.world.grid.hasOwnProperty(y)) {
         y = parseInt(y);
         newWorld[y] = {}
-        for (var x in this.world[y]) {
-          if (this.world[y].hasOwnProperty(x)) {
+        for (var x in this.world.grid[y]) {
+          if (this.world.grid[y].hasOwnProperty(x)) {
             x = parseInt(x);
-            var cell = this.world[y][x];
+            var cell = this.world.grid[y][x];
 
             if (cell == "tail") {
               newWorld[y][x] = "wire";
@@ -82,7 +84,7 @@ app.controller("EditorController", function () {
               var count = 0;
               for (var dx = -1; dx <= 1; dx++) {
                 for (var dy = -1; dy <= 1; dy++) {
-                  if (this.world[y+dy] && this.world[y+dy][x+dx] == "head") {
+                  if (this.world.grid[y+dy] && this.world.grid[y+dy][x+dx] == "head") {
                     count++;
                   }
                 };
@@ -98,7 +100,7 @@ app.controller("EditorController", function () {
         }
       }
     }
-    this.world = newWorld;
+    this.world.grid = newWorld;
     this.drawWorld();
   };
 
@@ -132,20 +134,20 @@ app.controller("EditorController", function () {
 
   this.getMouseCell = function (canvas, evt) {
     var pos = this.getMousePos(canvas, evt);
-    return {x: Math.floor(pos["x"] / this.pixelsPerCell + that.screenX),
-            y: Math.floor(pos["y"] / this.pixelsPerCell + that.screenY)};
+    return {x: Math.floor(pos["x"] / this.world.pixelsPerCell + that.world.screenX),
+            y: Math.floor(pos["y"] / this.world.pixelsPerCell + that.world.screenY)};
   }
 
   this.placeCell = function (x, y, type) {
-    if (!that.world[y]) {
-      that.world[y] = {};
+    if (!that.world.grid[y]) {
+      that.world.grid[y] = {};
     }
 
-    that.world[y][x] = type;
+    that.world.grid[y][x] = type;
   }
 
   this.getCell = function (x, y) {
-    return that.world[y] && that.world[y][x];
+    return that.world.grid[y] && that.world.grid[y][x];
   };
 
   this.mousePressed = false;
@@ -191,8 +193,8 @@ app.controller("EditorController", function () {
     $("#coords").html(cell.x + "," + cell.y)
     if (that.mode == "view" && that.mousePressed) {
       var pos = that.getMousePos(that.canvas, e);
-      that.screenX += (that.dragX - pos.x)/that.pixelsPerCell;
-      that.screenY += (that.dragY - pos.y)/that.pixelsPerCell;
+      that.world.screenX += (that.dragX - pos.x)/that.world.pixelsPerCell;
+      that.world.screenY += (that.dragY - pos.y)/that.world.pixelsPerCell;
       that.dragX = pos.x;
       that.dragY = pos.y;
       that.drawWorld();
@@ -235,21 +237,21 @@ app.controller("EditorController", function () {
   // fix that at some point.
 
   this.zoomIn = function() {
-    that.pixelsPerCell *= this.scalingFactor;
-    that.screenX += that.canvas.width / (2.5*that.pixelsPerCell*this.scalingFactor);
-    that.screenY += that.canvas.height / (2.5*that.pixelsPerCell*this.scalingFactor)
+    that.world.pixelsPerCell *= this.scalingFactor;
+    that.world.screenX += that.canvas.width / (2.5*that.world.pixelsPerCell*this.scalingFactor);
+    that.world.screenY += that.canvas.height / (2.5*that.world.pixelsPerCell*this.scalingFactor)
     that.drawWorld();
   };
 
   this.zoomOut = function() {
-    that.screenX -= that.canvas.width / (2.5*that.pixelsPerCell*this.scalingFactor);
-    that.screenY -= that.canvas.height / (2.5*that.pixelsPerCell*this.scalingFactor)
-    that.pixelsPerCell /= this.scalingFactor;
+    that.world.screenX -= that.canvas.width / (2.5*that.world.pixelsPerCell*this.scalingFactor);
+    that.world.screenY -= that.canvas.height / (2.5*that.world.pixelsPerCell*this.scalingFactor)
+    that.world.pixelsPerCell /= this.scalingFactor;
     that.drawWorld();
   };
 
   this.clear = function () {
-    this.world = {};
+    this.world.grid = {};
     this.drawWorld();
   };
 
@@ -281,14 +283,24 @@ app.controller("EditorController", function () {
   this.stats = function () {
     var result = {"head":0, "tail": 0, "wire": 0};
 
-    for (row in this.world) {
-      if (this.world.hasOwnProperty(row)) {
-        for (cell in this.world[row]) {
-          result[this.world[row][cell]] += 1;
+    for (row in this.world.grid) {
+      if (this.world.grid.hasOwnProperty(row)) {
+        for (cell in this.world.grid[row]) {
+          result[this.world.grid[row][cell]] += 1;
         }
       }
     }
 
     return result;
   };
+
+  this.save = function () {
+    $http.post('/api/worlds', {world: {contents: this.world}}).
+    success(function(data, status, headers, config) {
+      debugger;
+    }).
+    error(function(data, status, headers, config) {
+      debugger;
+    });
+  }
 });

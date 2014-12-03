@@ -1,0 +1,5 @@
+<script type="text/javascript">
+window.grid = <%= raw(JSON::parse(@world.contents)["grid"].to_json) %>;
+</script>
+
+<%= render "main/editor" %>

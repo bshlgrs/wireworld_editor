@@ -6,6 +6,8 @@ gem 'rails', '4.1.1'
 
 group :development do
   gem 'sqlite3'
+  gem 'better_errors'
+  gem 'binding_of_caller'
 end
 
 group :production do
