@@ -2,7 +2,6 @@ $(function () {
   var Helper = window.Helper = {};
 
   Helper.drawLine = function(x0, y0, x1, y1, callback) {
-    console.log(x0+","+y0 + ","+ x1 + ","+ y1);
     var dx = x1 - x0;
     var dy = y1 - y0;
     var xo = 1;

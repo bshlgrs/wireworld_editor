@@ -112,10 +112,14 @@ app.controller("EditorController", function ($scope, $http) {
     }
   };
 
+  this.previousTime = Date.now();
+
   this.step = function () {
     if (that.playing) {
       that.evolve();
       setTimeout(that.step, that.stepTime);
+      $("#fps").html("fps: "+ (1000 / (Date.now() - that.previousTime)))
+      that.previousTime = Date.now()
     }
   };
 
@@ -154,28 +158,7 @@ app.controller("EditorController", function ($scope, $http) {
 
   this.handleClick = function(e) {
     that.mousePressed = true;
-    if (that.mode=="view") {
-      var pos = that.getMousePos(that.canvas, e);
-      that.dragX = pos.x;
-      that.dragY = pos.y;
-    } else if (that.mode == "draw") {
-      var cell = that.getMouseCell(that.canvas, e);
-      that.placeCell(cell.x, cell.y, "wire");
-      that.lastDrawn = cell;
-      that.drawWorld();
-    } else if (that.mode == "ignite") {
-      var cell = that.getMouseCell(that.canvas, e);
-      if (that.getCell(cell.x, cell.y) == "wire") {
-        that.placeCell(cell.x, cell.y, "head");
-        that.lastDrawn = cell;
-        that.drawWorld();
-      }
-    } else if (that.mode == "select") {
-      var pos = getMousePos(canvas, e);
-      that.selecting = true;
-      selectStartX = pos.x;
-      selectStartY = pos.y;
-    }
+    Behaviors[that.mode].handleClick(that, e, that.getMouseCell(that.canvas, e));
     e.preventDefault();
   };
 
@@ -189,38 +172,9 @@ app.controller("EditorController", function ($scope, $http) {
 
   this.handleDrag = function(e) {
     var cell = that.getMouseCell(that.canvas, e);
-
-    $("#coords").html(cell.x + "," + cell.y)
-    if (that.mode == "view" && that.mousePressed) {
-      var pos = that.getMousePos(that.canvas, e);
-      that.world.screenX += (that.dragX - pos.x)/that.world.pixelsPerCell;
-      that.world.screenY += (that.dragY - pos.y)/that.world.pixelsPerCell;
-      that.dragX = pos.x;
-      that.dragY = pos.y;
-      that.drawWorld();
-    } else if (that.mode == "draw" && that.mousePressed) {
-      if (that.lastDrawn) {
-        Helper.drawLine(that.lastDrawn.x, that.lastDrawn.y, cell.x, cell.y,
-          function (x, y) {
-          that.placeCell(x, y, "wire");
-        });
-        that.lastDrawn = cell;
-        that.drawWorld();
-      } else {
-        debugger;
-        console.log("I don't think this should happen")
-      }
-    } else if (that.mode == "ignite" && that.mousePressed) {
-      if (that.lastDrawn && (cell.x != that.lastDrawn.x || cell.y != that.lastDrawn.y)) {
-        if (that.getCell(cell.x, cell.y) == "wire") {
-          that.placeCell(cell.x, cell.y, "tail");
-          that.lastDrawn = undefined;
-          that.drawWorld();
-        }
-      }
-    } else if (that.mode == "select" && that.mousePressed) {
-      console.log(that.selecting);
-      drawWorld();
+    $("#coords").html(cell.x + "," + cell.y);
+    if (that.mousePressed) {
+      Behaviors[that.mode].handleDragWhileClicked(that, e, cell);
     }
   }
 
@@ -303,4 +257,24 @@ app.controller("EditorController", function ($scope, $http) {
       debugger;
     });
   }
+
+  var key_bindings = {
+        86: "view",
+        73: "ignite",
+        80: "pen",
+        68: "douse",
+        69: "erase"};
+
+  // CHECK THIS
+  $("body").keydown(" ", function (e) {
+    if (e.which == 32) {
+      if (that.playing) {
+        that.pause();
+      } else {
+        that.play();
+      }
+    } else if (key_bindings[e.which]) {
+        that.mode = key_bindings[e.which];
+    }
+  });
 });
