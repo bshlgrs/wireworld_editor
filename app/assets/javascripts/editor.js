@@ -1,4 +1,4 @@
-var app = angular.module('wireworld', []);
+var app = angular.module('wireworld', ["ngRoute"]);
 
 app.controller("EditorController", function ($scope, $http) {
 
