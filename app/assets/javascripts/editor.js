@@ -116,8 +116,8 @@ app.controller("EditorController", function ($scope, $http) {
 
   this.step = function () {
     if (that.playing) {
-      that.evolve();
       setTimeout(that.step, that.stepTime);
+      that.evolve();
       $("#fps").html("fps: "+ (1000 / (Date.now() - that.previousTime)))
       that.previousTime = Date.now()
     }
