@@ -1,4 +1,4 @@
-var app = angular.module('wireworld', ["ngRoute"]);
+var app = angular.module('wireworld', []);
 
 app.controller("EditorController", function ($scope, $http) {
 
@@ -16,14 +16,12 @@ app.controller("EditorController", function ($scope, $http) {
   this.ctx = this.canvas.getContext("2d");
 
   this.selecting = false;
-  this.selectStartX = 0;
-  this.selectStartY = 0;
-  this.selectEndX = 0;
-  this.selectEndY = 0;
+  this.selectStart = undefined;
+  this.selectEnd = undefined;
 
-  this.colors = {"head": "rgb(255,0,0)",
-                "tail": "rgb(0,0,255)",
-                "wire": "rgb(200,200,100)"};
+  this.colors = {"head": ["rgb(200,0,0)", "rgb(255,0,0)"],
+                "tail": ["rgb(0,0,200)", "rgb(0,0,255)"],
+                "wire": ["rgb(200,200,100)", "rgb(255,255,150)"]};
 
   this.mode = "view";
   this.stepTime = 100;
@@ -35,9 +33,44 @@ app.controller("EditorController", function ($scope, $http) {
     if (cellType) {
       var startX = (x - this.world.screenX) * this.world.pixelsPerCell;
       var startY = (y - this.world.screenY) * this.world.pixelsPerCell;
-      this.ctx.fillStyle = this.colors[cellType];
-      this.ctx.fillRect(startX, startY, this.world.pixelsPerCell, this.world.pixelsPerCell);
+      var selected = this.cellSelected(x, y)
+
+      this.ctx.fillStyle = this.colors[cellType][0 + selected];
+
+      var size;
+
+      if (!selected) {
+        if (this.world.pixelsPerCell > 10) {
+          size = this.world.pixelsPerCell - 2;
+        } else if (this.world.pixelsPerCell > 5) {
+          size = this.world.pixelsPerCell - 1;
+        } else {
+          size = this.world.pixelsPerCell;
+        }
+
+        this.ctx.fillRect(startX, startY, size, size);
+      } else {
+        if (this.world.pixelsPerCell > 10) {
+          size = this.world.pixelsPerCell - 4;
+          this.ctx.fillRect(startX + 1, startY + 1, size, size);
+        } else if (this.world.pixelsPerCell > 5) {
+          size = this.world.pixelsPerCell - 2;
+          this.ctx.fillRect(startX + 1, startY + 1, size, size);
+        } else {
+          size = this.world.pixelsPerCell;
+          this.ctx.fillRect(startX, startY, size, size);
+        }
+      }
     }
+  }
+
+  this.cellSelected = function (x, y) {
+    if (this.selectStart) {
+      var start = that.calculateCell(this.selectStart);
+      var end = that.calculateCell(this.selectEnd);
+      return ((start.x <= x == end.x >= x) && (start.y <= y == end.y >= y));
+    }
+    return false;
   }
 
   this.drawWorld = function () {
@@ -52,16 +85,23 @@ app.controller("EditorController", function ($scope, $http) {
       }
     }
 
-    if (! this.playing) {
+    if (!this.playing) {
       this.ctx.fillStyle = "rgba(100, 100, 200, 0.2)";
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    if (this.selecting) {
-      ctx.strokeStyle = "rgba(100, 100, 200, 0.2)";
-      var pos = getMousePos();
-      ctx.strokeRect(selectStartX, selectStartY, pos.x, pos.y);
+    if (this.selectStart) {
+      if (this.selecting) {
+        this.ctx.fillStyle = "rgba(150, 100, 256, 0.3)";
+      } else {
+        this.ctx.fillStyle = "rgba(100, 100, 256, 0.2)";
+      }
+
+      var start = that.selectStart;
+      var end = that.selectEnd;
+      this.ctx.fillRect(start.x, start.y, end.x - start.x, end.y - start.y);
     }
+
   };
 
   this.evolve = function () {
@@ -128,18 +168,23 @@ app.controller("EditorController", function ($scope, $http) {
     this.drawWorld();
   };
 
-  this.getMousePos = function (canvas, evt) {
-    var rect = this.ctx.canvas.getBoundingClientRect();
+  this.getMousePos = function (canvas, e) {
+    var rect = that.ctx.canvas.getBoundingClientRect();
     return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
     };
+  }
+
+  this.calculateCell = function (pos) {
+    return {x: Math.floor(pos.x / that.world.pixelsPerCell + that.world.screenX),
+            y: Math.floor(pos.y / that.world.pixelsPerCell + that.world.screenY)};
   }
 
   this.getMouseCell = function (canvas, evt) {
     var pos = this.getMousePos(canvas, evt);
-    return {x: Math.floor(pos["x"] / this.world.pixelsPerCell + that.world.screenX),
-            y: Math.floor(pos["y"] / this.world.pixelsPerCell + that.world.screenY)};
+    return {x: Math.floor(pos.x / that.world.pixelsPerCell + that.world.screenX),
+            y: Math.floor(pos.y / that.world.pixelsPerCell + that.world.screenY)};
   }
 
   this.placeCell = function (x, y, type) {
@@ -158,6 +203,7 @@ app.controller("EditorController", function ($scope, $http) {
 
   this.handleClick = function(e) {
     that.mousePressed = true;
+    that.mousePos = that.getMousePos(that.canvas, e);
     Behaviors[that.mode].handleClick(that, e, that.getMouseCell(that.canvas, e));
     e.preventDefault();
   };
@@ -167,13 +213,18 @@ app.controller("EditorController", function ($scope, $http) {
     that.selecting = false;
     that.drawWorld();
 
+    if (Behaviors[that.mode].handleUnclick) {
+      Behaviors[that.mode].handleUnclick(that, e, that.getMouseCell(that.canvas, e))
+    }
+
     that.lastDrawn = undefined;
   }
 
   this.handleDrag = function(e) {
+    that.mousePos = that.getMousePos(that.canvas, e);
     var cell = that.getMouseCell(that.canvas, e);
     $("#coords").html(cell.x + "," + cell.y);
-    if (that.mousePressed) {
+    if (that.mousePressed && Behaviors[that.mode].handleDragWhileClicked) {
       Behaviors[that.mode].handleDragWhileClicked(that, e, cell);
     }
   }
@@ -265,7 +316,6 @@ app.controller("EditorController", function ($scope, $http) {
         68: "douse",
         69: "erase"};
 
-  // CHECK THIS
   $("body").keydown(" ", function (e) {
     if (e.which == 32) {
       if (that.playing) {
