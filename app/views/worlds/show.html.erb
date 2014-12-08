@@ -1,5 +1,8 @@
-<script type="text/javascript">
-window.grid = <%= raw(JSON::parse(@world.contents)["grid"].to_json) %>;
+<%= render "main/editor" %>
+
+<script type="text/javascript" defer>
+  var world = World.newWorld(<%= @world.to_json) %>);
+  var app = new WireworldEditor($("#c")[0], world);
 </script>
 
-<%= render "main/editor" %>
+

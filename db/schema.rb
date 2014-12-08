@@ -11,15 +11,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141129135513) do
+ActiveRecord::Schema.define(version: 20141207224858) do
+
+  create_table "users", force: true do |t|
+    t.string   "username",        null: false
+    t.string   "password_digest", null: false
+    t.string   "session_token",   null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "users", ["session_token"], name: "index_users_on_session_token", unique: true
+  add_index "users", ["username"], name: "index_users_on_username", unique: true
 
   create_table "worlds", force: true do |t|
-    t.string   "contents"
     t.string   "name"
     t.string   "description"
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "grid"
+    t.integer  "pixels_per_cell"
+    t.integer  "screen_x"
+    t.integer  "screen_y"
   end
 
 end

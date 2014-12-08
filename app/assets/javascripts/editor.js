@@ -1,19 +1,10 @@
-var app = angular.module('wireworld', []);
-
-app.controller("EditorController", function ($scope, $http) {
-
-  this.world = {};
-  this.world.grid = window.grid;
-
+var WireworldEditor = function (canvas, world) {
+  this.world = world;
   // This is for debugging purposes.
   window.cont = this;
 
-  this.world.pixelsPerCell = 20;
-  this.world.screenX = 0;
-  this.world.screenY = 0;
-
-  this.canvas = $("#c")[0];
-  this.ctx = this.canvas.getContext("2d");
+  this.canvas = canvas;
+  this.ctx = canvas.getContext("2d");
 
   this.selecting = false;
   this.selectStart = undefined;
@@ -148,6 +139,9 @@ app.controller("EditorController", function ($scope, $http) {
     if (!this.playing) {
       this.playing = true;
       this.evolve();
+      $("#play").addClass("active");
+      $("#pause").removeClass("active");
+      $("#fps").html("fps: ");
       setTimeout(this.step, this.stepTime);
     }
   };
@@ -165,7 +159,10 @@ app.controller("EditorController", function ($scope, $http) {
 
   this.pause = function () {
     this.playing = false;
+    $("#play").removeClass("active");
+    $("#pause").addClass("active");
     this.drawWorld();
+    $("#fps").html("paused");
   };
 
   this.getMousePos = function (canvas, e) {
@@ -187,17 +184,13 @@ app.controller("EditorController", function ($scope, $http) {
             y: Math.floor(pos.y / that.world.pixelsPerCell + that.world.screenY)};
   }
 
-  this.placeCell = function (x, y, type) {
-    if (!that.world.grid[y]) {
-      that.world.grid[y] = {};
-    }
-
-    that.world.grid[y][x] = type;
+  this.getCell = function (x, y) {
+    return this.world.getCell(x, y);
   }
 
-  this.getCell = function (x, y) {
-    return that.world.grid[y] && that.world.grid[y][x];
-  };
+  this.placeCell = function (x, y, type) {
+    return this.world.placeCell(x, y, type);
+  }
 
   this.mousePressed = false;
 
@@ -232,9 +225,9 @@ app.controller("EditorController", function ($scope, $http) {
   this.drawWorld();
   this.step();
 
-  $("#c").on("mousedown", this.handleClick);
-  $("#c").on("mouseup", this.handleUnclick);
-  $("#c").mousemove(this.handleDrag);
+  $(canvas).on("mousedown", this.handleClick);
+  $(canvas).on("mouseup", this.handleUnclick);
+  $(canvas).mousemove(this.handleDrag);
 
   this.scalingFactor = 1.5;
 
@@ -299,20 +292,21 @@ app.controller("EditorController", function ($scope, $http) {
     return result;
   };
 
-  this.save = function () {
-    $http.post('/api/worlds', {world: {contents: this.world}}).
-    success(function(data, status, headers, config) {
-      debugger;
-    }).
-    error(function(data, status, headers, config) {
-      debugger;
-    });
-  }
+  this.changeMode = function (newMode) {
+    that.mode = newMode;
+    $(".mode-selector").removeClass("active");
+    $(_.filter($(".mode-selector"), function(x) {
+      return $(x).data("mode") == newMode;
+    })[0]).addClass("active");
+
+  };
 
   var key_bindings = {
         86: "view",
         73: "ignite",
         80: "pen",
+        83: "select",
+        77: "move",
         68: "douse",
         69: "erase"};
 
@@ -324,7 +318,32 @@ app.controller("EditorController", function ($scope, $http) {
         that.play();
       }
     } else if (key_bindings[e.which]) {
-        that.mode = key_bindings[e.which];
+      that.changeMode(key_bindings[e.which]);
     }
   });
-});
+
+  $(".mode-selector").on("click", function (e) {
+    that.changeMode($(e.currentTarget).data('mode'));
+  })
+
+  $("#play").on("click", function(e) {
+    that.play();
+  });
+
+  $("#pause").on("click", function(e) {
+    that.pause();
+  });
+
+  $("#step").on("click", function(e) {
+    that.step();
+  });
+
+  $("#clear").on("click", function (e) {
+    that.clear();
+  })
+
+  $("#save").on('click', function (e) {
+    that.world.save();
+  })
+};
+

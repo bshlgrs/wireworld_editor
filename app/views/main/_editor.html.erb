@@ -1,5 +1,4 @@
-<div ng-app="wireworld" ng-controller="EditorController as editor">
-
+<div>
   <!-- canvas -->
   <div id="canvas-wrapper">
     <div id="coords" style="left: 30px; top: 10px; position: absolute; visibility: hidden;"></div>
@@ -18,17 +17,16 @@
         <div class="btn-group-lg" role="group" aria-label="...">
           <a role="button"
             class="btn btn-default btn-lg"
-            id="clear"
-            ng-click="editor.clear();">
+            id="clear">
             <span class="glyphicon glyphicon-trash"></span></a>
 
-          <%= render partial: "mode_selector", locals: {mode: "view"}%>
-          <%= render partial: "mode_selector", locals: {mode: "ignite"}%>
-          <%= render partial: "mode_selector", locals: {mode: "douse"}%>
-          <%= render partial: "mode_selector", locals: {mode: "pen"}%>
-          <%= render partial: "mode_selector", locals: {mode: "erase"}%>
-          <%= render partial: "mode_selector", locals: {mode: "select"}%>
-          <%= render partial: "mode_selector", locals: {mode: "move"}%>
+          <%= render partial: "main/mode_selector", locals: {mode: "view"}%>
+          <%= render partial: "main/mode_selector", locals: {mode: "ignite"}%>
+          <%= render partial: "main/mode_selector", locals: {mode: "douse"}%>
+          <%= render partial: "main/mode_selector", locals: {mode: "pen"}%>
+          <%= render partial: "main/mode_selector", locals: {mode: "erase"}%>
+          <%= render partial: "main/mode_selector", locals: {mode: "select"}%>
+          <%= render partial: "main/mode_selector", locals: {mode: "move"}%>
         </div>
       </div>
     </div>
@@ -61,7 +59,7 @@
               <li><a href="#">New</a></li>
               <li class="divider"></li>
               <li><a href="#">Open</a></li>
-              <li><a href="#" ng-click="editor.save()">Save</a></li>
+              <li><a href="#" id="save">Save</a></li>
               <li><a href="#">Save as</a></li>
               <li class="divider"></li>
               <li><a href="#">Import</a></li>
@@ -74,19 +72,17 @@
           <li>
             <div class="btn-group navbar-btn" role="group" aria-label="...">
               <a role="button" class="btn btn-default"
-                id="step" ng-click="editor.evolve()">
+                id="step" onclick="editor.evolve()">
                 <span class="glyphicon glyphicon-step-forward"></span></a>
-              <a role="button" class="btn btn-default" id="play"
-                ng-click="editor.play()" ng-class='{active: editor.playing}'>
+              <a role="button" class="btn btn-default" id="play">
               <span class="glyphicon glyphicon-play"></span></a>
-              <a role="button" class="btn btn-default" id="pause"
-                ng-click="editor.pause()" ng-class='{active: !editor.playing}'><span class="glyphicon glyphicon-pause"></span></a>
+              <a role="button" class="btn btn-default" id="pause"><span class="glyphicon glyphicon-pause"></span></a>
               <label>
                 <input type="range" value="50" id="speed-controller">
                 Speed
               </label>
-              <a role="button" class="btn btn-default" ng-click="editor.zoomIn()" id="zoom_in"><span class="glyphicon glyphicon-zoom-in"></span></a>
-              <a role="button" class="btn btn-default" ng-click="editor.zoomOut()" id="zoom_out"><span class="glyphicon glyphicon-zoom-out"></span></a>
+              <a role="button" class="btn btn-default" onclick="editor.zoomIn()" id="zoom_in"><span class="glyphicon glyphicon-zoom-in"></span></a>
+              <a role="button" class="btn btn-default" onclick="editor.zoomOut()" id="zoom_out"><span class="glyphicon glyphicon-zoom-out"></span></a>
             </div>
           </li>
         </ul>
@@ -109,40 +105,40 @@
     </div><!-- /.container-fluid -->
   </nav>
 
-<div class="modal fade" id="aboutModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title">About</h4>
-      </div>
-      <div class="modal-body">
-        <p>This is a Wireworld editor.</p>
-        <p>Wireworld is a cellular automaton.</p>
-        <p>It was made by Buck Shlegeris.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+  <div class="modal fade" id="aboutModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title">About</h4>
+        </div>
+        <div class="modal-body">
+          <p>This is a Wireworld editor.</p>
+          <p>Wireworld is a cellular automaton.</p>
+          <p>It was made by Buck Shlegeris.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
 
-<div class="modal fade" id="statsModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title">Stats</h4>
-      </div>
-      <div class="modal-body">
-        <p>Stats: {{editor.stats}}</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+  <div class="modal fade" id="statsModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title">Stats</h4>
+        </div>
+        <div class="modal-body">
+          <p>Stats: {{editor.stats}}</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
 
 </div>

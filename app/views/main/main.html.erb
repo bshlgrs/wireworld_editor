@@ -1,7 +1,9 @@
-<script type="text/javascript">
-window.grid = {26: {23:"head", 24:"tail",25:"wire"},
-             27: {22:"wire",26:"wire"},
-             28: {23:"wire",24:"wire",25:"wire"}};
-</script>
-
 <%= render "editor" %>
+
+<script type="text/javascript" defer>
+  var world = World.newWorld(
+            {26: {23:"head", 24:"tail",25:"wire"},
+             27: {22:"wire",26:"wire"},
+             28: {23:"wire",24:"wire",25:"wire"}});
+  var app = new WireworldEditor($("#c")[0], world);
+</script>
