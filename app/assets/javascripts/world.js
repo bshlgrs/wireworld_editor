@@ -38,20 +38,24 @@
     }
   }
 
+  World.prototype.toJSON = function () {
+    return {
+      grid: JSON.stringify(this.grid),
+      pixelsPerCell: this.pixelsPerCell,
+      screenX: this.screenX,
+      screenY: this.screenY,
+      id: this.id,
+      name: this.name,
+      description: this.description
+    };
+  }
+
   World.prototype.ajaxCreate = function () {
     var that = this;
     $.ajax("api/worlds",{
       type: "POST",
       data: {
-        world: {
-          grid: JSON.stringify(this.grid),
-          pixelsPerCell: this.pixelsPerCell,
-          screenX: this.screenX,
-          screenY: this.screenY,
-          id: this.id,
-          name: this.name,
-          description: this.description
-        }
+        world: that.toJSON();
       },
       success: function (data, status) {
         console.log(data + " " + status);
