@@ -324,7 +324,7 @@ var WireworldEditor = function (canvas, world) {
 
   $(".mode-selector").on("click", function (e) {
     that.changeMode($(e.currentTarget).data('mode'));
-  })
+  });
 
   $("#play").on("click", function(e) {
     that.play();
@@ -340,10 +340,12 @@ var WireworldEditor = function (canvas, world) {
 
   $("#clear").on("click", function (e) {
     that.clear();
-  })
+  });
 
   $("#save").on('click', function (e) {
     that.world.save();
-  })
+  });
+
+  $("#filename").html(this.world.name);
 };
 

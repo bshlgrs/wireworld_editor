@@ -1,6 +1,11 @@
 (function () {
   var World = window.World = function (details) {
-    this.grid = details.grid || {};
+    if (details.grid && details.grid[0] == "{") {
+      this.grid = JSON.parse(details.grid);
+    } else {
+      this.grid = details.grid || {};
+    }
+
     this.pixelsPerCell = details.pixelsPerCell || 20;
     this.screenX = details.screenX || 0;
     this.screenY = details.screenY || 0;
@@ -52,10 +57,27 @@
 
   World.prototype.ajaxCreate = function () {
     var that = this;
-    $.ajax("api/worlds",{
+    $.ajax("/api/worlds",{
       type: "POST",
       data: {
-        world: that.toJSON();
+        world: that.toJSON()
+      },
+      success: function (data, status) {
+        that.id = data.id;
+        console.log(data + " " + status);
+      },
+      error: function (thing, status, error) {
+        console.log(status + " " + error);
+      }
+    });
+  }
+
+  World.prototype.ajaxUpdate = function () {
+    var that = this;
+    $.ajax("/api/worlds/"+this.id,{
+      type: "PUT",
+      data: {
+        world: that.toJSON()
       },
       success: function (data, status) {
         console.log(data + " " + status);

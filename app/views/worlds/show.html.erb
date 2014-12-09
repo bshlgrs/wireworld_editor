@@ -1,7 +1,7 @@
 <%= render "main/editor" %>
 
 <script type="text/javascript" defer>
-  var world = World.newWorld(<%= @world.to_json) %>);
+  var world = new World(<%= @world.to_json.html_safe %>);
   var app = new WireworldEditor($("#c")[0], world);
 </script>
 

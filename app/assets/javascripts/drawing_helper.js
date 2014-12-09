@@ -27,7 +27,7 @@ $(function () {
         var xf = x1+1;
     }
     if (Math.abs(dx) >= Math.abs(dy)){
-        var D = (2*dy - dx)*py;
+        var D = (2*dy - dx);
         callback(x0,y0);
         var y = y0;
         var x = x0;
@@ -42,7 +42,7 @@ $(function () {
             }
         }
     } else {
-        var D = (2*dx - dy)*px;
+        var D = (2*dx - dy);
         callback(x0,y0);
         var y = y0;
         var x = x0;
