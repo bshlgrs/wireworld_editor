@@ -335,7 +335,7 @@ var WireworldEditor = function (canvas, world) {
   });
 
   $("#step").on("click", function(e) {
-    that.step();
+    that.evolve();
   });
 
   $("#clear").on("click", function (e) {
@@ -344,6 +344,14 @@ var WireworldEditor = function (canvas, world) {
 
   $("#save").on('click', function (e) {
     that.world.save();
+  });
+
+  $("#zoom_in").on('click',function(e){
+    that.zoomIn();
+  });
+
+  $("#zoom_out").on('click',function(e){
+    that.zoomOut();
   });
 
   $("#filename").html(this.world.name);
