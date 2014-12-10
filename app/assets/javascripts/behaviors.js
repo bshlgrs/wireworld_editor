@@ -137,12 +137,14 @@ $(function () {
     handleClick : function (that, e, cell) {
       deselect(that);
       that.selectedCellType = that.getCell(cell.x, cell.y);
+      that.previousCellType = undefined;
       that.lastDrawn = cell;
     },
     handleDragWhileClicked : function (that, e, cell) {
       if (that.selectedCellType) {
         if (that.lastDrawn && (cell.x != that.lastDrawn.x || cell.y != that.lastDrawn.y)) {
-          that.placeCell(that.lastDrawn.x, that.lastDrawn.y, undefined);
+          that.placeCell(that.lastDrawn.x, that.lastDrawn.y, that.previousCellType);
+          that.previousCellType = that.getCell(cell.x, cell.y);
           that.placeCell(cell.x, cell.y, that.selectedCellType);
           that.lastDrawn = cell;
           that.drawWorld();
