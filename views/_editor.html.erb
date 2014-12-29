@@ -1,0 +1,124 @@
+
+
+
+<div>
+  <!-- canvas -->
+  <div id="canvas-wrapper">
+    <div id="coords"></div>
+    <canvas id="c" width="550" height="400"
+    ></canvas>
+  </div>
+
+  <p id="fps" style="">
+  </p>
+
+  <!-- menu -->
+  <div ="">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        Editing tools
+        <div class="btn-group-lg" role="group" aria-label="...">
+          <a role="button"
+            class="btn btn-default btn-lg"
+            id="clear">
+            <span class="glyphicon glyphicon-trash"></span></a>
+<a role="button"
+class="btn btn-default btn-lg mode-selector"
+data-mode='view'>view</a>
+<a role="button"
+class="btn btn-default btn-lg mode-selector"
+data-mode='ignite'>ignite</a>
+<a role="button"
+class="btn btn-default btn-lg mode-selector"
+data-mode='douse'>douse</a>
+<a role="button"
+class="btn btn-default btn-lg mode-selector"
+data-mode='pen'>pen</a>
+<a role="button"
+class="btn btn-default btn-lg mode-selector"
+data-mode='erase'>erase</a>
+<a role="button"
+class="btn btn-default btn-lg mode-selector"
+data-mode='select'>select</a>
+<a role="button"
+class="btn btn-default btn-lg mode-selector"
+data-mode='move'>move</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- title -->
+  <div style="position: absolute;">
+    <h1>Wireworld editor</h1>
+  </div>
+
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">wireworld.ninja</a>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">File <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#">New</a></li>
+              <li class="divider"></li>
+              <li><a href="#">Open</a></li>
+              <li><a href="#" id="save">Save</a></li>
+              <li><a href="#">Save as</a></li>
+              <li class="divider"></li>
+              <li><a href="#">Import</a></li>
+              <li><a href="#">Export</a></li>
+            </ul>
+          </li>
+
+          <li class="nav navbar-nav"><a href="#" id="filename"></a></li>
+
+          <li>
+            <div class="btn-group navbar-btn" role="group" aria-label="...">
+              <a role="button" class="btn btn-default"
+                id="step">
+                <span class="glyphicon glyphicon-step-forward"></span></a>
+              <a role="button" class="btn btn-default" id="play">
+              <span class="glyphicon glyphicon-play"></span></a>
+              <a role="button" class="btn btn-default" id="pause"><span class="glyphicon glyphicon-pause"></span></a>
+              <a role="button" class="btn btn-default" id="zoom_in"><span class="glyphicon glyphicon-zoom-in"></span></a>
+              <a role="button" class="btn btn-default" id="zoom_out"><span class="glyphicon glyphicon-zoom-out"></span></a>
+            </div>
+            <label class="navbar-form form-group nav">
+              <input type="range" value="50" id="speed-controller">
+              Speed
+            </label>
+          </li>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+          <li><a data-toggle="modal" data-target="#aboutModal">About</a></li>
+          <li><a href="#">Help</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">My account <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#">Action</a></li>
+              <li><a href="#">Another action</a></li>
+              <li><a href="#">Something else here</a></li>
+              <li class="divider"></li>
+              <li><a href="#">Log out</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+
+</div>
